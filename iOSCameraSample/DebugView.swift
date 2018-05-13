@@ -26,7 +26,7 @@ class DebugView: UIView {
     
     // MARK: - Private
     
-    private func drawLine(start: Int, end: Int, rate: CGFloat, offset: CGPoint, face: DLBFace) {
+    private func drawLine(start: Int, end: Int, rate: CGFloat, offset: CGPoint, face: DLBFace, isClose: Bool = false) {
         let path: UIBezierPath = UIBezierPath();
         path.lineWidth = 1.0
         
@@ -44,7 +44,10 @@ class DebugView: UIView {
             }
         }
         
-        //path.close()
+        if isClose {
+            path.close()
+        }
+        
         path.stroke()
     }
     
@@ -77,23 +80,72 @@ class DebugView: UIView {
             areaPath.stroke()
             
             // 顔の輪郭
-            self.drawLine(start: DLBPartPosition.contourStart.rawValue,
-                          end: DLBPartPosition.contourEnd.rawValue,
+            self.drawLine(start: DLBPartPosition.jawStart.rawValue,
+                          end: DLBPartPosition.jawEnd.rawValue,
                           rate: rate,
                           offset: offset,
                           face: face)
             // 左の眉毛
-            self.drawLine(start: DLBPartPosition.eyebrowsLeftStart.rawValue,
-                          end: DLBPartPosition.eyebrowsLeftEnd.rawValue,
+            self.drawLine(start: DLBPartPosition.leftEyebrowsStart.rawValue,
+                          end: DLBPartPosition.leftEyebrowsEnd.rawValue,
                           rate: rate,
                           offset: offset,
                           face: face)
             // 右の眉毛
-            self.drawLine(start: DLBPartPosition.eyebrowsRightStart.rawValue,
-                          end: DLBPartPosition.eyebrowsRightEnd.rawValue,
+            self.drawLine(start: DLBPartPosition.rightEyebrowsStart.rawValue,
+                          end: DLBPartPosition.rightEyebrowsEnd.rawValue,
                           rate: rate,
                           offset: offset,
                           face: face)
+            
+            // 鼻 縦
+            self.drawLine(start: 27,
+                          end: 30,
+                          rate: rate,
+                          offset: offset,
+                          face: face)
+            
+            // 鼻 横
+            self.drawLine(start: 31,
+                          end: 35,
+                          rate: rate,
+                          offset: offset,
+                          face: face)
+            
+            // 左目
+            self.drawLine(start: DLBPartPosition.leftEyeStart.rawValue,
+                          end: DLBPartPosition.leftEyeEnd.rawValue,
+                          rate: rate,
+                          offset: offset,
+                          face: face,
+                          isClose: true)
+            
+            // 右目
+            self.drawLine(start: DLBPartPosition.rightEyeStart.rawValue,
+                          end: DLBPartPosition.rightEyeEnd.rawValue,
+                          rate: rate,
+                          offset: offset,
+                          face: face,
+                          isClose: true)
+            
+            // 口 外周
+            self.drawLine(start: 48,
+                          end: 59,
+                          rate: rate,
+                          offset: offset,
+                          face: face,
+                          isClose: true)
+            
+            // 口 内周
+            self.drawLine(start: 60,
+                          end: 67,
+                          rate: rate,
+                          offset: offset,
+                          face: face,
+                          isClose: true)
+            
+            // 左目 右目
+            print("左目 \(face.leftEyeOpeningDegree) 右目 \(face.rightEyeOpeningDegree)")
         }
     }
     

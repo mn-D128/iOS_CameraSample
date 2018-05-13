@@ -20,4 +20,16 @@
     return self;
 }
 
+- (CGFloat) leftEyeOpeningDegree {
+    CGFloat degree = MAX(self.parts[41].CGPointValue.y - self.parts[37].CGPointValue.y,
+                         self.parts[40].CGPointValue.y - self.parts[38].CGPointValue.y);
+    return degree;
+}
+
+- (CGFloat) rightEyeOpeningDegree {
+    CGFloat degree = MAX(self.parts[47].CGPointValue.y - self.parts[43].CGPointValue.y,
+                         self.parts[46].CGPointValue.y - self.parts[44].CGPointValue.y);
+    return degree;
+}
+
 @end
