@@ -6,7 +6,6 @@
 //  Copyright © 2018年 mn(D128). All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 
@@ -18,6 +17,7 @@
 
 - (void)    setShapePredictor:(NSString *)path;
 - (NSArray<DLBFace *> *) detectFaces:(UIImage *)image
+                    videoOrientation:(AVCaptureVideoOrientation)videoOrientation
                  metadataFaceObjects:(NSArray<AVMetadataFaceObject *> *)metadataFaceObject;
 
 @end

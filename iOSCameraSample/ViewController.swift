@@ -39,6 +39,22 @@ class ViewController: UIViewController {
                            completionHandler: completionHandler)
     }
     
+    override func viewWillTransition(to size: CGSize,
+                                     with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        let completion: (UIViewControllerTransitionCoordinatorContext) -> Void = { [weak self] context in
+            self?.updateVideoOrientation()
+        }
+        
+        coordinator.animate(alongsideTransition: nil,
+                            completion: completion)
+    }
+    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.all
+    }
+    
     // MARK: - Private
     
     private func requestAccess(for mediaType: AVMediaType,
@@ -106,16 +122,13 @@ class ViewController: UIViewController {
         self.session.addOutput(captureVideoDataOutput)
         
         if let connection: AVCaptureConnection = captureVideoDataOutput.connections.first {
-            // カメラ映像の回転状態を調整（デフォルトは横になってる）
-            if connection.isVideoOrientationSupported {
-                connection.videoOrientation = AVCaptureVideoOrientation.portrait
-            }
-            
             // フロントカメラ映像の左右反転を調整（デフォルトは反転している）
             if connection.isVideoMirroringSupported {
                 connection.isVideoMirrored = true
             }
         }
+        
+        self.updateVideoOrientation()
         
 //        case userInteractive
 //        case userInitiated
@@ -153,6 +166,32 @@ class ViewController: UIViewController {
         
         self.session.startRunning()
     }
+    
+    private func updateVideoOrientation() {
+        for output: AVCaptureOutput in self.session.outputs where output is AVCaptureVideoDataOutput {
+            if let connection: AVCaptureConnection = output.connections.first {
+                if connection.isVideoOrientationSupported {
+                    let statusBarOrientation: UIInterfaceOrientation = UIApplication.shared.statusBarOrientation
+                    let videoOrientation: AVCaptureVideoOrientation = statusBarOrientation.captureVideoOrientation
+                    connection.videoOrientation = videoOrientation
+                }
+            }
+
+            return
+        }
+    }
+    
+    private func videoOrientation() -> AVCaptureVideoOrientation? {
+        for output: AVCaptureOutput in self.session.outputs where output is AVCaptureVideoDataOutput {
+            if let connection: AVCaptureConnection = output.connections.first {
+                if connection.isVideoOrientationSupported {
+                    return connection.videoOrientation
+                }
+            }
+        }
+        
+        return nil
+    }
 
 }
 
@@ -165,9 +204,13 @@ extension ViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             return
         }
         
-        let faces: [DLBFace] = DLBWrapper.shared().detectFaces(image,
-                                                               metadataFaceObjects: self.metadataFaceObjects)
-        
+        var faces: [DLBFace] = [DLBFace]()
+        if let videoOrientation: AVCaptureVideoOrientation = self.videoOrientation() {
+            faces = DLBWrapper.shared().detectFaces(image,
+                                                    videoOrientation:videoOrientation,
+                                                    metadataFaceObjects: self.metadataFaceObjects)
+        }
+
         self.captureImage = image
         
         DispatchQueue.main.sync { [weak self] in
@@ -195,8 +238,10 @@ extension ViewController: AVCaptureMetadataOutputObjectsDelegate {
         }
         
         var faces: [DLBFace] = [DLBFace]()
-        if let captureImage: UIImage = self.captureImage {
+        if let captureImage: UIImage = self.captureImage,
+            let videoOrientation: AVCaptureVideoOrientation = self.videoOrientation() {
             faces = DLBWrapper.shared().detectFaces(captureImage,
+                                                    videoOrientation:videoOrientation,
                                                     metadataFaceObjects: metadataFaceObjects)
         }
 
@@ -206,6 +251,20 @@ extension ViewController: AVCaptureMetadataOutputObjectsDelegate {
         
         self.metadataFaceObjects = metadataFaceObjects
         
+    }
+    
+}
+
+extension UIInterfaceOrientation {
+    
+    var captureVideoOrientation: AVCaptureVideoOrientation {
+        switch self {
+        case UIInterfaceOrientation.portrait: return AVCaptureVideoOrientation.portrait
+        case UIInterfaceOrientation.landscapeLeft: return AVCaptureVideoOrientation.landscapeLeft
+        case UIInterfaceOrientation.landscapeRight: return AVCaptureVideoOrientation.landscapeRight
+        case UIInterfaceOrientation.portraitUpsideDown: return AVCaptureVideoOrientation.portraitUpsideDown
+        case UIInterfaceOrientation.unknown: return AVCaptureVideoOrientation.portrait
+        }
     }
     
 }

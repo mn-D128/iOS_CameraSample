@@ -75,6 +75,7 @@ static DLBWrapper *sDLBWrapperInstance = nil;
 }
 
 - (NSArray<DLBFace *> *) detectFaces:(UIImage *)image
+                    videoOrientation:(AVCaptureVideoOrientation)videoOrientation
                  metadataFaceObjects:(NSArray<AVMetadataFaceObject *> *)metadataFaceObjects {
     CGFloat w = image.size.width * image.scale;
     CGFloat h = image.size.height * image.scale;
@@ -91,15 +92,38 @@ static DLBWrapper *sDLBWrapperInstance = nil;
     
     for (AVMetadataFaceObject *faceObject in metadataFaceObjects) {
         CGRect rect = faceObject.bounds;
-        CGRect area = CGRectMake(rect.origin.y * w,
-                                 rect.origin.x * h,
-                                 rect.size.height * w,
-                                 rect.size.width * h);
-//        CGRect area = CGRectMake(rect.origin.x * w,
-//                                 rect.origin.y * h,
-//                                 rect.size.width * w,
-//                                 rect.size.height * h);
         
+        CGRect area = CGRectZero;
+        switch (videoOrientation) {
+            case AVCaptureVideoOrientationPortrait:
+                area = CGRectMake(rect.origin.y * w,
+                                  rect.origin.x * h,
+                                  rect.size.height * w,
+                                  rect.size.width * h);
+                break;
+                
+            case AVCaptureVideoOrientationLandscapeLeft:
+                area = CGRectMake(w - (rect.origin.x * w + rect.size.width * w),
+                                  rect.origin.y * h,
+                                  rect.size.width * w,
+                                  rect.size.height * h);
+                break;
+                
+            case AVCaptureVideoOrientationLandscapeRight:
+                area = CGRectMake(rect.origin.x * w,
+                                  h - (rect.origin.y * h + rect.size.height * h),
+                                  rect.size.width * w,
+                                  rect.size.height * h);
+                break;
+                
+            case AVCaptureVideoOrientationPortraitUpsideDown:
+                area = CGRectMake(w - (rect.origin.y * w + rect.size.height * w),
+                                  h - (rect.origin.x * h + rect.size.width * h),
+                                  rect.size.height * w,
+                                  rect.size.width * h);
+                break;
+        }
+
         long left = (long)roundf(area.origin.x);
         long top = (long)roundf(area.origin.y);
         long right = (long)roundf(CGRectGetMaxX(area));
