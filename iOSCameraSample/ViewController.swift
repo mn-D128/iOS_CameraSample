@@ -12,8 +12,12 @@ import AVFoundation
 class ViewController: UIViewController {
     
     @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var debugView: DebugView!
     
     private let session: AVCaptureSession = AVCaptureSession()
+    
+    private var metadataFaceObjects: [AVMetadataFaceObject] = [AVMetadataFaceObject]()
+    private var captureImage: UIImage?
     
     // MAKR: - UIViewController
     
@@ -127,6 +131,17 @@ class ViewController: UIViewController {
         // キューがブロックされているときに新しいフレームが来たら削除.
         captureVideoDataOutput.alwaysDiscardsLateVideoFrames = true
         
+        // 顔を認識
+        let captureMetadataOutput: AVCaptureMetadataOutput = AVCaptureMetadataOutput()
+        if !self.session.canAddOutput(captureMetadataOutput) {
+            return
+        }
+        
+        self.session.addOutput(captureMetadataOutput)
+        
+        captureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.face]
+        captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.global(qos: .default))
+        
 //        do {
 //            try videoDevice.lockForConfiguration()
 //            // フレームレート
@@ -150,9 +165,47 @@ extension ViewController: AVCaptureVideoDataOutputSampleBufferDelegate {
             return
         }
         
+        let faces: [DLBFace] = DLBWrapper.shared().detectFaces(image,
+                                                               metadataFaceObjects: self.metadataFaceObjects)
+        
+        self.captureImage = image
+        
         DispatchQueue.main.sync { [weak self] in
             self?.imageView.image = image
+            self?.debugView.imageSize = image.size
+            self?.debugView.faces = faces
         }
+    }
+    
+}
+
+extension ViewController: AVCaptureMetadataOutputObjectsDelegate {
+    
+    func metadataOutput(_ output: AVCaptureMetadataOutput,
+                        didOutput metadataObjects: [AVMetadataObject],
+                        from connection: AVCaptureConnection) {
+        var metadataFaceObjects: [AVMetadataFaceObject] = [AVMetadataFaceObject]()
+        
+        for metadataObject in metadataObjects {
+            guard let metadataFaceObject: AVMetadataFaceObject = metadataObject as? AVMetadataFaceObject else {
+                continue
+            }
+            
+            metadataFaceObjects.append(metadataFaceObject)
+        }
+        
+        var faces: [DLBFace] = [DLBFace]()
+        if let captureImage: UIImage = self.captureImage {
+            faces = DLBWrapper.shared().detectFaces(captureImage,
+                                                    metadataFaceObjects: metadataFaceObjects)
+        }
+
+        DispatchQueue.main.sync { [weak self] in
+            self?.debugView.faces = faces
+        }
+        
+        self.metadataFaceObjects = metadataFaceObjects
+        
     }
     
 }

@@ -16,6 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        if let path: String = Bundle.main.path(forResource: "shape_predictor_68_face_landmarks", ofType: "dat") {
+            DLBWrapper.shared().setShapePredictor(path)
+        }
+        
         return true
     }
 

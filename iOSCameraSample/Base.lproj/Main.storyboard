@@ -21,17 +21,26 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="i6T-YJ-eqn">
                                 <rect key="frame" x="0.0" y="20" width="375" height="647"/>
                             </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="S4F-GB-dJq" customClass="DebugView" customModule="iOSCameraSample" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="S4F-GB-dJq" firstAttribute="leading" secondItem="i6T-YJ-eqn" secondAttribute="leading" id="7ZO-95-YVc"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="i6T-YJ-eqn" secondAttribute="bottom" id="E9O-b5-XWG"/>
+                            <constraint firstItem="S4F-GB-dJq" firstAttribute="trailing" secondItem="i6T-YJ-eqn" secondAttribute="trailing" id="IlH-M4-0GR"/>
                             <constraint firstItem="i6T-YJ-eqn" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="NQh-fj-FXl"/>
                             <constraint firstItem="i6T-YJ-eqn" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="ORF-u0-80O"/>
+                            <constraint firstItem="S4F-GB-dJq" firstAttribute="bottom" secondItem="i6T-YJ-eqn" secondAttribute="bottom" id="Uq2-pf-LMV"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="i6T-YJ-eqn" secondAttribute="trailing" id="iUb-Xg-XMP"/>
+                            <constraint firstItem="S4F-GB-dJq" firstAttribute="top" secondItem="i6T-YJ-eqn" secondAttribute="top" id="ns1-p6-SCi"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="debugView" destination="S4F-GB-dJq" id="Xtl-ws-F6w"/>
                         <outlet property="imageView" destination="i6T-YJ-eqn" id="6as-sD-ngC"/>
                     </connections>
                 </viewController>
